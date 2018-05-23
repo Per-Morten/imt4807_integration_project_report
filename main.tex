@@ -1,0 +1,64 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage{import}
+\usepackage[dvipsnames]{xcolor}
+\usepackage{enumerate}
+\usepackage[parfill]{parskip}
+\usepackage{graphicx}
+\graphicspath{ {./} }
+\usepackage{amssymb}
+\usepackage[hidelinks]{hyperref}
+\usepackage{caption}
+
+\newcommand{\todo}[1]{{\color{blue}TODO: #1}}
+\newcommand{\rephrase}[1]{{\color{Aquamarine}Rephrase: #1}}
+\newcommand{\think}[1]{{\color{Orchid}Think: #1}}
+
+\newcommand{\notes}[1]{Notes: #1}
+
+%\renewcommand{\todo}[1]{}
+%\renewcommand{\rephrase}[1]{}
+%\renewcommand{\think}[1]{}
+
+\title{IMT4807 Integration Project}
+\author{Per-Morten Straume \& Andreas Wang}
+\date{June 2018}
+
+\begin{document}
+
+\maketitle
+
+% What
+% * What happened
+% * What were the results
+% So What
+% * What are the other solutions
+% * How did we assess technologies
+% * What is innovative
+% * What do these results imply
+% * How did i influence the outcome
+% What now
+% * What will I do differently next time
+
+% Basically følg IMRAD
+% Oppgave beskrivelse
+% * Høynivå arkitektur
+% Prosess (beskrive fremgangsmåte og valgene vi tok)
+% Resultat
+% Diskusjon
+% * Innovasjon
+% Conclusion
+% * Future work
+
+\subimport{./}{introduction.tex}
+\subimport{./}{case_description.tex}
+\subimport{./}{process.tex} % Skrevet kronologisk. Hvordan gjordi vi det OG hva bestemte vi
+\subimport{./}{result.tex}
+\subimport{./}{discussion.tex}
+\subimport{./}{conclusion.tex}
+
+
+\bibliographystyle{ieeetr}
+\bibliography{sources}
+
+\end{document}
