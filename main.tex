@@ -9,12 +9,24 @@
 \usepackage{amssymb}
 \usepackage[hidelinks]{hyperref}
 \usepackage{caption}
+\usepackage{titlesec}
+
 
 \newcommand{\todo}[1]{{\color{blue}TODO: #1}}
 \newcommand{\rephrase}[1]{{\color{Aquamarine}Rephrase: #1}}
 \newcommand{\think}[1]{{\color{Orchid}Think: #1}}
 
-\newcommand{\notes}[1]{Notes: #1}
+\newcounter{aprequirements}
+\newcommand{\requirement}[2]{\begin{quote}\refstepcounter{aprequirements}\textbf{Requirement \theaprequirements: #1 \label{#2}}\end{quote}}
+\newcommand{\reqref}[1]{\footnote{Requirement \ref{#1}.}}
+\newcommand{\reqcomment}[1]{\emph{Comment: #1}}
+
+\setcounter{secnumdepth}{4}
+\titleformat{\paragraph}
+{\normalfont\normalsize\itshape}{\theparagraph}{1em}{}
+\titlespacing*{\paragraph}
+{0pt}{3.25ex plus 1ex minus .2ex}{1.5ex plus .2ex}
+
 
 %\renewcommand{\todo}[1]{}
 %\renewcommand{\rephrase}[1]{}
@@ -49,6 +61,8 @@
 % * Innovasjon
 % Conclusion
 % * Future work
+
+\todo{Ensure PMS writes in correct time, past-future tense}
 
 \subimport{./}{introduction.tex}
 \subimport{./}{case_description.tex}

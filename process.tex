@@ -1,1 +1,141 @@
 \section{Process}
+\subsection{Methodology}
+\begin{itemize}
+    \item Meetings
+    \item Extreme programming
+    \item Evaluation Criteria (How were they defined)
+\end{itemize}
+
+\subsection{High-level Architecture}
+\todo{Basically describe the napkin}
+
+\subsection{Technology Assessment and Component Architecture}
+* What does this section contain?
+    * What our assessment framework was
+    * Per component
+        * The description of the component, 
+        * the alternative solutions we looked at, their strengths and weaknesses, 
+        * what our final solution ended up implementing and why.
+
+\subsubsection{Assessment Framework}
+* How did we assess technology?
+    * Gauging our first impressions on various technology
+    * Setting up a set of criteria
+    * Each criteria has a importance multiplier from 1-5, higher means more important
+    * Each alternative solution is then given a score from 0-9 for each criteria
+    * A total sum is then calculated per solution where the score of each criteria is combined with the respective importance multiplier. 
+    * The solutions that then had the highest scores were the ones we would discuss further and potentially choose for usage.
+
+* Mention what the base criteria are
+
+* Structure of assessment:
+\begin{itemize}
+    \item Description
+    \item Alternative solutions
+    \item Chosen solution
+\end{itemize}
+
+\subsubsection{Host - Image Capture} % FFMPEGOut in combination with FFMPEG. Some modified source code for optimization and repurposing for streaming
+Image capturing is a subcomponent of the host component where the goal is to capture images at a set time interval from a camera that exists in Unity. The captured images then need to be encoded to a video format in order for streaming to be possible. As far as technology assessment is concerned, we primarily looked at the actual problem of capturing images first and foremost as it was the most pressing issue in relation to performance. The solution alternatives we looked at is as follows:
+\paragraph{Native C++ Plugin, using OpenGL access to acquire framebuffer}
+        * Description
+            \todo{cite/footnote documentation}
+            * Unity has support for native C++ plugins through the use of DLL files. This allows writing native C++ code while having full access to the rendering pipeline. By having access to the pipeline, we could access the framebuffer directly and acquire the image data from there.   
+        * Strengths
+            * Huge amounts of control to do almost everything we want 
+            * High performance potential
+        * Weaknesses
+            * Need to restart Unity every time we want to reload the plugin
+            * Fairly high code complexity
+            * Understanding of Unity's rendering pipeline is required
+\paragraph{RockVR Video Capture}
+        * Description
+            \todo{cite/footnote}
+            * RockVR is a free plugin from the Unity Asset Store that allows for plug and play video capture functionality. 
+        * Strengths
+            * Seems simple to use. 
+        * Weaknesses
+            * Performance is not good enough
+            * Hard to understand how to replace video file encoding to actual real time encoding.
+            * Licensing is unknown. 
+            * Paid version is required for more functionality. 
+\paragraph{Naive implementation using RenderTexture in Unity}
+        * Description
+            \todo{cite/footnote documentation}
+            * The simplest solution is to use Unity's RenderTexture components and copy pixel data directly from a camera view to a texture. 
+        * Strengths
+            * Easiest solution to prototype
+            * Very low code complexity
+        * Weaknesses
+            * Very mediocre performance
+\paragraph{Optimized Naive implementation}
+        * Description
+            \todo{cite post}
+            * Google's Tiltbrush developers posted a blog post where they went through a high level description of how they optimized their video capture functionality in tiltbrush to support real time VR video capture. It might thus be possible to retrace the steps mentioned in the post to create an optimized naive implementation as the blog post starts with it as a base. 
+        * Strengths
+            * Supposedly high enough performance for real time video capture, even in VR.
+            * Written by google's tiltbrush developers so the claims and data of the blog should be fairly valid. 
+        * Weaknesses
+            * Would actually require implementation of a solution that is explained at a high level in a blog post. Can be hard with limited knowledge on the topic. 
+\paragraph{Unity Generic Frame Recorder}
+        * Description
+            \todo{cite/footnote}
+            * Unity offers a open source video capturing plugin which contains a large amount of functionality. 
+        * Strengths
+            * Fairly large and extensible plugin made by Unity themselves for recording. 
+            * Pretty well documented
+            * Open source
+        * Weaknesses
+            * The code base is a bit too big and complex for our use case. This makes it hard to actually modify and extend the code to fit our needs 
+            * General performance did not seem satisfactory. 
+\paragraph{Using the AsyncGPUReadback from the latest Unity version}
+        * Description
+            \todo{cite/footnote documentation?}
+            * Unity 2018 added the possibility of asynchronous readback from the GPU which in general should allow for high performance fetching of data. 
+        * Strengths
+            * Supposedly allows quick and instant readback from the GPU without stalling the rendering pipeline like standard usage of RenderTexture would. 
+        * Weaknesses
+            * Experimental technology that might be removed from Unity later
+            * No actual open source implementations that handle video recording in a high performance manner. Attempting a quick prototype with this resulted in lower performance than even the naive implementation. This primarily came from the fact that we could not properly send the data directly to FFmpeg as it had to be converted to a supported format first. We could not find a efficient enough data conversion to actually make use of this. 
+\paragraph{FFmpegOut}
+        * Description
+            \todo{cite/footnote}
+            * FFmpegOut is a open source plugin for Unity that handles video capturing using the FFmpeg library as a video encoder. 
+            * Note: We found this after prototyping with the rest of available solutions while studying how to handle video encoding. 
+        * Strengths
+            * Best performance
+            * Gives access to a powerful industry standard library directly in C\#
+            * Open Source
+            * Relatively small code base so it is easy to keep track of everything and modify the code. 
+        * Weaknesses
+            * Will require time to learn how to use a very big library to actually do what we want. 
+            * The FFmpeg pipe from the source code is not perfectly robust so the recording might suddenly stop working if the window is not in focus for a few seconds. 
+\paragraph{Final Choice of Solution}
+    * Given that performance was a priority for this case, we prototyped all of the available ready made solutions in combination with the basic naive approach.
+    * The majority of these solutions had many oddities and very high performance costs
+    * Furthermore, they primarily saved data to files, which is not needed for our case where we want to stream data in real time. 
+    * We finally chose FFmpegOut as it allowed us to handle real time encoding of raw image data and stream it using the rtmp protocol. It also had the best performance of the alternatives, albeit not optimal. The fact that the code is open source also allows us to modify the code to suit our needs. 
+    * Using the other solutions would require us to at the very least find some means to encode video, but since FFmpegOut provided us access to the FFmpeg library in C\#, this increased the value significantly. 
+    
+    * The final solution uses a modified version of FFmpegOut where: 
+        * we have optimized the performance to no longer force vsync when capturing frames and instead sampling at set time intervals. 
+        * Instead of encoding and saving the raw image data to a video file, we have also entirely replaced the FFmpeg command arguments to allow for streaming to both youtube and twitch. 
+    
+
+\subsubsection{Host - Streaming} % FFMPEG
+* Description:
+    * This is a subcomponent of the host side which contains the following functionality: 
+        * The encoded video data has to be streamed to a streaming platform
+* Alternative Solutions
+    * 
+* Chosen solution
+    * Originally we had decided to go for using the Unity Transport Layer as a means to transfer data. 
+
+
+\subsubsection{Client} % Unity Overlay HTML 5, Moving to pure javascript, Remember: glorious html overlay hack
+
+\subsubsection{Server - Communication} % Photon
+
+\subsubsection{Server - Streaming} % Youtube & Twitch
+
+
