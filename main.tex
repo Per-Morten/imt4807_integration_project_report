@@ -5,11 +5,12 @@
 \usepackage{enumerate}
 \usepackage[parfill]{parskip}
 \usepackage{graphicx}
-\graphicspath{ {./} }
+\graphicspath{ {./images/} }
 \usepackage{amssymb}
 \usepackage[hidelinks]{hyperref}
 \usepackage{caption}
 \usepackage{titlesec}
+
 
 
 \newcommand{\todo}[1]{{\color{blue}TODO: #1}}
@@ -17,7 +18,7 @@
 \newcommand{\think}[1]{{\color{Orchid}Think: #1}}
 
 \newcounter{aprequirements}
-\newcommand{\requirement}[2]{\begin{quote}\refstepcounter{aprequirements}\textbf{Requirement \theaprequirements: #1 \label{#2}}\end{quote}}
+\newcommand{\requirement}[2]{\refstepcounter{aprequirements}\label{#2}\paragraph{Requirement \theaprequirements: #1}}
 \newcommand{\reqref}[1]{\footnote{Requirement \ref{#1}.}}
 \newcommand{\reqcomment}[1]{\emph{Comment: #1}}
 
@@ -62,7 +63,20 @@
 % Conclusion
 % * Future work
 
-\todo{Ensure PMS writes in correct time, past-future tense}
+\todo{Ensure PMS writes in correct time, past-future tense.}
+\todo{As far as structure is concerned, maybe we should do it similarly to how Rune mentioned. Here we go through Method, Result and Discussion for Tech Assessment and Innovation separately so we can discuss everything related to them then and there. Example provided in main.tex}
+
+% Rune based Structure:
+% Intro
+% General Project Methods
+% Tech Assessment
+%   Methods, Results, Discussion
+% Innovation
+%   Methods, Results, Discussion
+% Final Product (either before or after (Tech Assessment, Innovation)) Maybe after as I feel like we are discussing a lot of justifications in the tech assessment and it is a bit weird to have some of these come up before that point. 
+% Overarching discussion of the project
+% Conclusion
+%   On Tech Assessment, Innovation and in general
 
 \subimport{./}{introduction.tex}
 \subimport{./}{case_description.tex}

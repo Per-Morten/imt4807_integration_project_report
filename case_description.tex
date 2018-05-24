@@ -8,62 +8,66 @@
 \todo{Snakk med Vixel om dette er hva VREX er}
 Vixel\cite{vixel} creates XR collaboration tools targeting larger organizations. Their software, VREX\cite{vrex}, allows users from across the globe to meet within a 3D virtual environment to discuss problems, review designs, or other collaborative processes. Vixels current solution does not require VR-equipment for participation, as users can participate through regular laptop or desktop computers. However, participation still requires installing Vixels software. 
 Vixel wanted a prototype for a solution that would allow more users to participate in the collaboration tools in a simple manner, without having to install their software directly on the device in use. They envisioned a spectator mode, where a camera was placed within the VR environment and the video feed captured by this camera would be streamed over the internet.  Users who did not possess a computer with the VREX software could then be given a link to a web page where they could watch the video stream, and partake in the meeting in a basic manner, for example by highlighting the objects they could see on their screen. The solution should be platform agnostic, allowing it to be used both on tablet devices, smartphones, and personal computers. The users within the VR application could also interact with the camera by moving it around, to change what the viewers could see.
-Vixel was quite clear on what solution they desired, and presented us with a proposed architecture, seen in figure~\ref{fig:proposed_architecture}.
 
-\begin{figure}
-  %\includegraphics[width=0.5\textwidth]{gull}
-    \todo{Create a better figure from the napkin}
-    \caption{Proposed architecture by Vixel}
-    \label{fig:proposed_architecture}
-\end{figure}
 
 % Prototype or proof of concept?
 \subsection{Requirements}
-Following the discussion about the problem Vixel wanted to solve was a list of requirements. The importance of these requirements was stressed for a final product, however, for the proof of concept prototype their importance was relaxed. 
+Following the discussion about the problem Vixel wanted to solve was a list of requirements. The importance of these requirements was stressed for a final product, however, for the proof of concept prototype their importance was relaxed.
 
 \subsubsection{Functional Requirements}
 From the description of the case, and discussions with Vixel, the following functional requirements were discovered.
 
-\paragraph{Capture Image From Unity}
+\requirement{Capture Image From Unity}{req:image_capture_host}
 The solution would need to capture image data from the camera within Unity application. The image data needs to be encoded into a streaming compatible video format before it is transferred.
 
-\paragraph{Transfer Video Data From Host to Client, Through an External Source}
+\requirement{Transfer Video Data From Host to Client, Through an External Source}{req:video_transfer}
 Following its creation, the video data needs to be streamed to the client. This should happen through an external source that can act as an amplifier, as to not impose to much computations upon the host.
 
-\paragraph{Display Video Data on Client}
+\requirement{Display Video Data on Client}{req:video_display}
 Upon reception of the video data the client application should play the video data, allowing the user to see it. 
 
-\paragraph{Interact With Virtual Environment on Client}
+\requirement{Interact With Virtual Environment on Client}{req:client_interaction}
 The application should allow the client to interact with the virtual environment. For the prototype this meant that the user should be able to click on the video stream to highlight an object. This highlight should become visible to the rest of the users of the application.
 
-\paragraph{Chat}
+\requirement{Chat}{req:chat}
 In addition to interacting with the virtual environment, Vixel also desired chat functionality, to allow the users to communicate with each other.
 % Mention that Chat was dropped.
 
 \todo{Where the heck do we place this? Functional or Operational?}
-\paragraph{No Software Requirements on Client}
+\requirement{No Software Requirements on Client}{req:no_client_software}
 Vixel stressed that the client should not be required to install any software on their devices to make use of the application. \rephrase{Such a functionally would allow users to quickly join collaborative meetings, or to quickly demo functionality for new users.}
 
 \subsubsection{Operational Requirements}
 Operational requirements related to the application was also identified.
 
-\paragraph{Minimal Processing in Client Application}
+\requirement{Minimal Processing in Client Application}{req:minimal_processing_client}
 Due to the fact that the client application should be usable on low power devices like tablets or smartphones it is desirable that processing is kept to a minimum. This is to ensure that the user experience is \rephrase{damaged by lag}, and that the application does not drain the battery more than necessary.
 
-\paragraph{Minimal Overhead in Host Application}
-VR applications require a high framerate to ensure a high quality user experience.\todo{Add encouragement of 90 fps and source}
+\requirement{Minimal Overhead in Host Application}{req:minimal_processing_host}
+VR applications require a high framerate to ensure a high quality user experience. Because of this, it is desirable that the image capture and streaming adds minimal overhead to the host application.
+\todo{Add encouragement of 90 fps and source? https://www.technobuffalo.com/2015/11/20/playstation-vr-framerate-90fps-60fps-minimum/}
 
-\subsubsection{Developmental Requirements}
-\paragraph{Simple Integration}
+\subsubsection{Ranking Requirements}
+Following their identification, the requirements were ranked based on their importance towards the end product. The lower score, the earlier this requirement would be sacrified to \rephrase{deal with scoping issues.}
 
-\paragraph{Documentation}
-
-\paragraph{Testing}
-
-%\requirement{The user should not need to install additional software on their device}{req:no_client_install}
-%\reqref{req:no_client_install}
-
-% Add: List of all the requirements, also given importance
-
-% Also: Add general program flow (Half of the "requirements" listed in the requirements sheet)
+\todo{Format this so that it is linewidth}
+\begin{table}[]
+    \centering
+    \begin{tabular}{ | l | l |}
+        \hline
+        Requirement & Importance (1-3) \\
+        \hline
+        Requirement \ref{req:image_capture_host}            & 3                 \\
+        Requirement \ref{req:video_transfer}                & 3                 \\
+        Requirement \ref{req:video_display}                 & 3                 \\
+        Requirement \ref{req:no_client_software}            & 3                 \\
+        Requirement \ref{req:client_interaction}            & 2                 \\
+        Requirement \ref{req:minimal_processing_client}     & 2                 \\
+        Requirement \ref{req:minimal_processing_host}       & 2                 \\
+        Requirement \ref{req:chat}                          & 1                 \\
+        \hline
+    \end{tabular}
+    \caption{Requirements ranked by importance}
+    \label{tab:requirements_ranking}
+\end{table}
 
