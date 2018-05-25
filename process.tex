@@ -14,7 +14,7 @@ Throughout the project we adopted a pair programming methodology. This was done 
 
 \subsection{High-level Architecture}
 \subsubsection{Vixel Proposed Architecture}
-Vixel was quite clear on what solution they desired, and presented us with a proposed architecture, seen in figure~\ref{fig:proposed_architecture}. In their proposed architecture the images captured by the camera is sent to a distribution server. From here the video feed is distributed to an clients who \rephrase{are listening for it.}
+Vixel was quite clear on what solution they desired, and presented us with a proposed architecture, seen in Figure~\ref{fig:proposed_architecture}. In their proposed architecture the images captured by the camera is sent to a distribution server. From here the video feed is distributed to an clients who \rephrase{are listening for it.}
 In the case where a client user clicks to highlight something on their screen, that interaction request is sent to the host through the distribution server.
 
 
@@ -25,7 +25,7 @@ In the case where a client user clicks to highlight something on their screen, t
 \end{figure}
 
 \subsubsection{Our Architecture}
-Our final solution is kept quite close to the original solution, with some minor differences. As seen in figure~\ref{fig:our_architecture} rather than only having one distribution server, two cloud servers are used to achieve the desired functionality. The video stream captured by the camera in the host VR application is sent to a dedicated streaming platform, rather than the distribution server. Interactions between the client and the VR application, such as highlighting, is handled through the Photon Cloud. With the move to a dedicated streaming platforms, the client needs to know where to watch the stream. The URL for this stream is also communicated through Photon Cloud.
+Our final solution is kept quite close to the original solution, with some minor differences. As seen in Figure~\ref{fig:our_architecture} rather than only having one distribution server, two cloud servers are used to achieve the desired functionality. The video stream captured by the camera in the host VR application is sent to a dedicated streaming platform, rather than the distribution server. Interactions between the client and the VR application, such as highlighting, is handled through the Photon Cloud. With the move to a dedicated streaming platforms, the client needs to know where to watch the stream. The URL for this stream is also communicated through Photon Cloud.
 
 \paragraph{Justification}
 Splitting the distribution server into two separate pieces allowed us to better focus on combining existing solutions to allow us to get a functioning proof of concept faster. Having a distribution server would require us to set up a basic streaming platform. The distribution server would also need functionality to allow it to speak to both the host side Unity VR application and the client web application. Such a solution would require us to satisfy potentially complex networking protocols. This was something we neither had time, nor competence to do.
@@ -37,203 +37,106 @@ Splitting the distribution server into two separate pieces allowed us to better 
 \end{figure}
 
 \subsection{Technology Assessment and Component Architecture}
-* What does this section contain?
-    * What our assessment framework was
-    * Per component
-        * The description of the component, 
-        * the alternative solutions we looked at, their strengths and weaknesses, 
-        * what our final solution ended up implementing and why.
+As part of developing the component architecture we had to assess a large array of various technologies to best satisfy Vixel's requirements. This section contains the assessment framework we used, a brief description of each alternative we looked at, its strengths and weaknesses as well as our final choice of technology.  
 
 \subsubsection{Assessment Framework}
-* How did we assess technology?
-    * Gauging our first impressions on various technology
-    * Setting up a set of criteria
-    * Each criteria has a importance multiplier from 1-5, higher means more important
-    * Each alternative solution is then given a score from 0-9 for each criteria
-    * A total sum is then calculated per solution where the score of each criteria is combined with the respective importance multiplier. 
-    * The solutions that then had the highest scores were the ones we would discuss further and potentially choose for usage.
+Our assessment framework consisted of a two-step process. To start off, we had to gauge our first impressions on the various types of technology that exists. We handled this by setting up a list of criteria for each component where each had an importance multiplier between 1 and 5 where higher values means higher importance. The list of criteria included aspects like performance, potential expenses, existing familiarity, documentation, reliability as well as a few others. We gave each technology a score between 0 and 9 where higher means better and combined the score with the importance multiplier for each criteria. We would then consider the technologies that ended up with the highest sum of criteria scores for potential prototyping as well as the final choice. 
 
-* We are only listing the solutions we were able to think of and find. There may of course be additional solutions available that we missed. 
-* We handled the technology assessment with the original model/architecture in mind, but the final architecture ended up being slightly different due to our final choice of technologies and the fact that we grew more familiar with the concept of streaming. 
+While we have assessed a variety of different technologies, we acknowledge that we may have missed some which might have been relevant for the project. We also handled the assessment with the original architecture in mind, but the final architecture ended up being slightly different as we had become more familiar with the topic. Our final choice of technologies also had some influence on the final architecture. 
 
 \subsubsection{Host - Image Capture} % FFMPEGOut in combination with FFMPEG. Some modified source code for optimization and repurposing for streaming
-Image capturing is a subcomponent of the host component where the goal is to capture images at a set time interval from a camera that exists in Unity. The captured images then need to be encoded to a video format in order for streaming to be possible. As far as technology assessment is concerned, we primarily looked at the actual problem of capturing images first and foremost as it was the most pressing issue in relation to performance. The solution alternatives we looked at is as follows:
-\paragraph{Native C++ Plugin, using OpenGL access to acquire framebuffer}
-        * Description
-            \todo{cite/footnote documentation}
-            * Unity has support for native C++ plugins through the use of DLL files. This allows writing native C++ code while having full access to the rendering pipeline. By having access to the pipeline, we could access the framebuffer directly and acquire the image data from there.   
-        * Strengths
-            * Huge amounts of control to do almost everything we want 
-            * High performance potential
-        * Weaknesses
-            * Need to restart Unity every time we want to reload the plugin
-            * Fairly high code complexity
-            * Understanding of Unity's rendering pipeline is required
-\paragraph{RockVR Video Capture}
-        * Description
-            \todo{cite/footnote}
-            * RockVR is a free plugin from the Unity Asset Store that allows for plug and play video capture functionality. 
-        * Strengths
-            * Seems simple to use. 
-        * Weaknesses
-            * Performance is not good enough
-            * Hard to understand how to replace video file encoding to actual real time encoding.
-            * Licensing is unknown. 
-            * Paid version is required for more functionality. 
-\paragraph{Naive implementation using RenderTexture in Unity}
-        * Description
-            \todo{cite/footnote documentation}
-            * The simplest solution is to use Unity's RenderTexture components and copy pixel data directly from a camera view to a texture. 
-        * Strengths
-            * Easiest solution to prototype
-            * Very low code complexity
-        * Weaknesses
-            * Very mediocre performance
-\paragraph{Optimized Naive implementation}
-        * Description
-            \todo{cite post}
-            * Google's Tiltbrush developers posted a blog post where they went through a high level description of how they optimized their video capture functionality in tiltbrush to support real time VR video capture. It might thus be possible to retrace the steps mentioned in the post to create an optimized naive implementation as the blog post starts with it as a base. 
-        * Strengths
-            * Supposedly high enough performance for real time video capture, even in VR.
-            * Written by google's tiltbrush developers so the claims and data of the blog should be fairly valid. 
-        * Weaknesses
-            * Would actually require implementation of a solution that is explained at a high level in a blog post. Can be hard with limited knowledge on the topic. 
-\paragraph{Unity Generic Frame Recorder}
-        * Description
-            \todo{cite/footnote}
-            * Unity offers a open source video capturing plugin which contains a large amount of functionality. 
-        * Strengths
-            * Fairly large and extensible plugin made by Unity themselves for recording. 
-            * Pretty well documented
-            * Open source
-        * Weaknesses
-            * The code base is a bit too big and complex for our use case. This makes it hard to actually modify and extend the code to fit our needs 
-            * General performance did not seem satisfactory. 
-\paragraph{Using the AsyncGPUReadback from the latest Unity version}
-        * Description
-            \todo{cite/footnote documentation?}
-            * Unity 2018 added the possibility of asynchronous readback from the GPU which in general should allow for high performance fetching of data. 
-        * Strengths
-            * Supposedly allows quick and instant readback from the GPU without stalling the rendering pipeline like standard usage of RenderTexture would. 
-        * Weaknesses
-            * Experimental technology that might be removed from Unity later
-            * No actual open source implementations that handle video recording in a high performance manner. Attempting a quick prototype with this resulted in lower performance than even the naive implementation. This primarily came from the fact that we could not properly send the data directly to FFmpeg as it had to be converted to a supported format first. We could not find a efficient enough data conversion to actually make use of this. 
-\paragraph{FFmpegOut}
-        * Description
-            \todo{cite/footnote}
-            * FFmpegOut is a open source plugin for Unity that handles video capturing using the FFmpeg library as a video encoder. 
-            * Note: We found this after prototyping with the rest of available solutions while studying how to handle video encoding. 
-        * Strengths
-            * Best performance
-            * Gives access to a powerful industry standard library directly in C\#
-            * Open Source
-            * Relatively small code base so it is easy to keep track of everything and modify the code. 
-        * Weaknesses
-            * Will require time to learn how to use a very big library to actually do what we want. 
-            * The FFmpeg pipe from the source code is not perfectly robust so the recording might suddenly stop working if the window is not in focus for a few seconds. 
-\paragraph{Final Choice of Solution}
-    * Given that performance was a priority for this case, we prototyped all of the available ready made solutions in combination with the basic naive approach.
-    * The majority of these solutions had many oddities and very high performance costs
-    * Furthermore, they primarily saved data to files, which is not needed for our case where we want to stream data in real time. 
-    * We finally chose FFmpegOut as it allowed us to handle real time encoding of raw image data and stream it using the rtmp protocol. It also had the best performance of the alternatives, albeit not optimal. The fact that the code is open source also allows us to modify the code to suit our needs. 
-    * Using the other solutions would require us to at the very least find some means to encode video, but since FFmpegOut provided us access to the FFmpeg library in C\#, this increased the value significantly. 
-    
-    * The final solution uses a modified version of FFmpegOut where: 
-        * we have optimized the performance to no longer force vsync when capturing frames and instead sampling at set time intervals. 
-        * Instead of encoding and saving the raw image data to a video file, we have also entirely replaced the FFmpeg command arguments to allow for streaming to both youtube and twitch. 
-    
+Image capturing is a subcomponent of the host component where the goal is to capture images at a set time interval from a camera that exists in Unity. The captured images then need to be encoded to a video format in order for streaming to be possible. As far as technology assessment is concerned, we primarily looked at the actual problem of capturing images first and foremost as it was the most pressing issue in relation to performance. The solution alternatives we looked at are as follows:
 
-\subsubsection{Host - Data Transfer} % FFMPEG
-    * This is a subcomponent of the host side where the main goal is to take the encoded video data and stream it to a distribution server.
+\paragraph{Native C++ Plugin, using OpenGL access to acquire framebuffer}
+Unity has support for native plugins\cite{unity_native_plugin} which allows us to write code in native C++ through the use of .DLL files. The use of native plugins gives full access to Unity's rendering pipeline which we could have used to access the framebuffer directly for image data acquisition. The strength of this approach is that it provides a large amount of control which in turn could provide a high performance potential. On the other side there are a couple of weaknesses with this approach. This includes the need to restart Unity every time we want to reload the plugin, a higher degree of code complexity by using C++ and the need to intimately understand Unity's rendering pipeline.  
+
+\paragraph{RockVR Video Capture}
+RockVR Video Capture\cite{unity_asset_store_rockvr} is a free plugin on the Unity Asset Store that allows for plug and play video capture functionality. The primary benefit of this solution is the simplicity of setting the plugin up and using it to capture video. As far as weaknesses are concerned we tried to write a quick prototype using the software, but noticed that the performance was insufficient as the plugin forced a vertical synchronization on the rendering itself. We also found it hard to understand whether it was possible to replace the encoding to video file with a real time encoding that could be directly transferred instead of saving the data locally on the machine first. Other weaknesses includes the fact that the licensing of the plugin was unknown and that usage of more advanced functionality required a paid version. 
+
+\paragraph{Naive implementation using the RenderTexture component in Unity}
+The perhaps simplest solution would be to write a naive implementation using the RenderTexture\cite{unity_renderTexture} component in Unity to directly copy pixel data from a camera to a texture. The benefits of this approach is that the implementation is very easy to prototype and that the code complexity is fairly low. On the other hand, the simplicity of the solution severely impacts performance.  
+
+\paragraph{Optimized Naive implementation}
+While searching for alternatives we managed to find a blog post\cite{google_vrCaptureBlog} by one of the Google's Tiltbrush developers which discusses an optimized version of the previously mentioned naive implementation. The blog post specifically mentions that several optimizations could be made to allow for real-time VR video capture in Unity. It could therefore be possible to create an optimized naive implementation as long as it is possible to retrace the steps that the blog post goes through. The strength of this approach is that it should provide high enough performance for video capture in real time if the author is to be believed. The downside is that the solution is described at a rather high level which can make it hard to actually implement everything as we have limited knowledge on the topic. 
+
+\paragraph{Unity Generic Frame Recorder}
+Unity offers a open source video capture plugin\cite{unity_genericFrameRecprder} which contains a large amount of various functionality. The benefits of this plugin is that it seems to be fairly large and extensible as it is made by Unity Technologies, the code is fairly well documented and it is also open source. The downside is that the codebase is rather big and complex. This can make it hard to actually modify and extend the code to fit our needs. A quick test of the plugin also makes it seem like the performance is not satisfactory to fulfill Requirement~\ref{req:minimal_processing_host}.
+
+\paragraph{Using the AsyncGPUReadback from the latest Unity version}
+Unity version 2018.1 and onwards has added the possibility of asynchronous readback from the GPU\cite{unity_asyncReadback} which in theory should allow for high performance fetching of GPU data. Using this functionality should avoid stalling the rendering pipeline in the way that RenderTexture components do which in general should provide better performance. The problem with this approach is that the technology is experimental and may be removed in later versions. There are also no actual open source implementations at the present time that handle video recording in a high performance manner. We attempted to write a quick prototype using the technology, but ended up with lower performance than the naive RenderTexture implementation. The reason for this is that we could not find an efficient means of converting the data we received from the GPU do a format that would be acceptable for encoding. 
+
+\paragraph{FFmpegOut}
+The final alternative we looked at is FFmpegOut\cite{ffmpegOut} which is a open source plugin for Unity that takes care of video recording using the FFmpeg\cite{ffmpeg} library. This solution had several strengths. From all the alternatives we looked at, this plugin provided the best performance in terms of actual video recording. It also gives full access to FFmpeg library which can handle both video encoding and video streaming. The code itself is open source and the codebase is small which should make potential optimizations and changes very easy to keep track of. There are also two downsides with this solution. The first is that it requires time to learn the FFmpeg library to be able to modify and extend of source code for our purposes. The second is that the pipe that the source code uses to FFmpeg is not perfectly robust as recording might suddenly stop working if the application window is not in focus for a few seconds.  
+
+\paragraph{Final Choice of Solution}
+Given that performance was a priority for this component, we prototyped all of the already made solutions in combination with the implementation of the simple naive approach. In general, the majority of the solutions had many oddities that impacted the performance in a negative manner like forcing the framerate of the application to be the same as the recording. Furthermore, many of the solutions saved data to video files, which is not needed for our case as we want to take the encoded data and stream it in real time without the intermediary step of saving the data to disk. We finally chose FFmpegOut as it also allowed us to handle real time video encoding of raw image data and stream it using the RTMP protocol. This meant that FFmpeg could fill the role of the data transfer that was needed for the host component. It also had the best performance among the alternatives even if it was not optimal. The fact that the code was open source also allowed us to easily modify the code to suit our needs. Since video encoding is handled by FFmpeg we also did not have to spend additional time to implement this ourselves. 
+
+For the final solution we use a modified version of FFmpegOut. In this modified version, we have optimized the performance so that it no longer forces vertical synchronization by modifying the camera capture algorithm to sample the camera at set time intervals instead of every frame. Instead of encoding and saving the raw image data to a video file, we have also entirely replaced the FFmpeg command arguments to allow for streaming to servers that support the RTMP protocol. 
     
+%%%%%%% Note: If we are to cut anything: we can technically cut a large amount of this as we mentioned that FFMPEG Handles Data Transfer
+\subsubsection{Host - Data Transfer} % FFMPEG
+Data Transfer is another subcomponent of the host side where the main goal is to take the encoded video data and stream it to a distribution server. For this subcomponent we considered the following solutions:
 
 \paragraph{Native C++ Plugin Using Boost}
-    * Description
-        * Similar to image capturing we considered using a Native C++ Plugin for Unity that could take the video data and use the networking components of the Boost library to transfer data to the distribution server.  
-    * Strengths
-        * Access to sockets gives a lot of control
-    * Weaknesses
-        * The need to make our own protocols
-        * Boost is a big library which makes build times a problem
-        * Again, Unity requires a reload for every reload of the plugin. 
+Similar to the actual image capture, we considered using a native C++ plugin for Unity. In this case we would have been using the networking components of the Boost library\cite{boost} to transfer data to the distribution server. Using Boost would allow us to have full access to sockets which gives a lot of control. At the same time, this means that we would have to make our own protocols which would take time. Boost is also a big library which can result in lengthy compilation times. The fact that Unity needs to be restarted to reload the plugin is also a downside. 
+
 \paragraph{Unity's Transport Layer}
-    * Description
-        * While Unity offers a high level network API which primarily is focused around networking for games it also offers a lower level API called the Unity Transport Layer. This API should provide enough functionality to facilitate the process of data transfer to a receiving distribution server.
-    * Strengths
-        * Allows us to work directly in Unity, reducing dependencies on other libraries. 
-        * General reliability should be good as all of Unity's networking functionality is built on top of this API.
-    * Weaknesses
-        * Documentation is not very comprehensive
-        * Will probably have to write our own data transfer protocol. 
-        * Limited familiarity with the technology makes it hard to prototype with. 
-\paragraph{Photon}
-    * Description
-        * The Photon Cloud Service offers a Unity API for networking which we potentially could use for transferring data as it supports communication between very many different platforms. 
-    * Strengths
-        * Allows us to use technology that Vixel already makes use of, potentially easing integration for future development. 
-        * Fairly easy to use Unity API.
-        * Could allow for using the same technology in multiple places like communication between clients/host
-    * Weaknesses
-        * Photon is not really built for transfer of video data
-        * It will be costly/expensive to actually get the right performance we want from the cloud service.
+While Unity offers a high level network API which is primarily focused around networking for games, it also offers a lower level API called the Unity Transport Layer\cite{unity_transportLayer}. This API should provide enough functionality to facilitate the process of data transfer to a distribution server without the need for any additional dependencies. In general, the reliability of this component of the Unity engine should also be fairly solid as all of Unity's networking functionality is built on top of it. The main problems with this API is that the documentation in general is not particularly comprehensive, that we would probably have to write our own data transfer protocols and the fact that we have limited familiarity with the technology which makes it hard to prototype with as the complexity is somewhat high. 
+
+\paragraph{Photon Engine}
+The Photon Engine\cite{photon_homepage} offers a Unity API for networking which we potentially could use for transferring data as it supports communication between many different platforms. The benefits of using the Photon Engine would be that later integration might be easier as Vixel already makes use of it. The Unity API is also fairly simple and well documented which should make it easy to prototype and implement functionality. Finally, it would allow us to use the same technology in multiple components regardless of platform as the engine supports many programming languages and platforms. A weakness of this solution is that it is not really built for transfer of video data, but rather smaller game state communication. The solution can also become expensive in order to get satisfactory performance from the provided cloud servers. 
+
 \paragraph{FFmpeg}
-    * Description
-        * \todo{FFmpeg library description}
-    * Strengths
-        * Direct support for the RTMP protocol which is used for video streaming
-        * Primary focus is manipulation of video files. 
-        * Very well documented
-        * Can also take care of video encoding. 
-    * Weaknesses
-        * The library is fairly big so it can take a little bit of time to learn what we need. 
+FFmpeg was already mentioned when listing alternatives for the previous subcomponent of the host side, but is again relevant here as it is related to this area as well. The benefit of using FFmpeg for data transfer is that it directly supports the RTMP protocol which is standard for video streaming. The library is also very mature and well documented which means that finding the necessary information for our goals should be fairly easy. The downside is the same as already mentioned in relation to the fact that the library is rather large so properly understanding it can take some time. 
 
 \paragraph{Final Choice of Solution}
-    * In general, it was hard to make a choice for this component as we had no prior experience with large scale data transfer.
-    * Originally we had decided to go for using the Unity Transport Layer as a means to transfer data.
-        * The reason for this is that we primarily wanted to work in Unity if possible to reduce overhead. 
-    * We also considered Photon, but discussion with Vixel provided us with the information that Photon is not that efficient at transferring large amounts of data like with videos at a time
-    * After finding the FFmpegOut plugin for video capture, we found out that FFmpeg also supports video streaming. 
-        * FFmpeg is generally very well documented and used in popular streaming software like Open Broadcasting Software. 
-        * Using it also means we can use a piece of technology to take care of two things at once, which lessens the complexity of the code base and allows for quicker prototyping. Speed of prototyping was a very important factor for the development of this project as we had rather limited time to actually make something. 
-        * FFmpeg is also primarily focused around working with video files which also provides a very optimized environment as far as latency is concerned. 
-
+In general, it was hard to make a choice for this component as we had very limited prior experience with large scale data transfer. We had originally planned to try the Unity Transport Layer for data transfer as it would reduce the the overhead of working with additional technologies. We also considered trying the Photon Engine, but discussion with Vixel provided us with the information that Photon is not particularly efficient at transferring large amounts of data like video streams. We ultimately chose FFmpeg for data transfer as it already was used for video encoding. An additional benefit of choosing FFmpeg was that prototyping the solution took less time as FFmpeg could take care of several things for us which is very valuable when limited time is available. Since FFmpeg primarily is focused around working with video files it is also a very optimized library for this purpose, which is perfect for Requirement~\ref{req:minimal_latency} where minimal latency is preferred. 
 
 \subsubsection{Host/Client Communication} % Photon
-    * This component consists of facilitating the communication between the host and the clients. This includes distributing stream URLs and interaction from the client side to send screen click events back to the host
-    * In general, the aforementioned alternative solutions outside of C++ with Boost and FFmpeg could be used for communication between clients and host, but we have to consider additional factors when interacting between different platforms as the client will be served through a web page. 
-        * Basically cross platform priority. 
-        * Boost is irrelevant as we are dealing with Javascript
+This component consists of facilitating the communication between the clients and the host. This includes distributing stream URLs from the host and the interaction from the client side to click on things they see in the stream. In general, the aforementioned alternative solutions for data transfer are relevant for communication although there are some exceptions. Since the client will be hosted on a web page, we need to make sure that cross technology and cross platform support is possible. This excludes the use of a native C++ plugin with Boost as it cannot easily interact with a Javascript web page. FFmpeg is also not relevant for this purpose as it only works with video files.  
     
 \paragraph{Unity's Transport Layer}
-    * Strengths
-        * A lot of control in terms of how communication is handled.
-    * Weaknesses
-        * Can potentially force us to use Unity on the client side which might result in less maintainable and extensible code. Ideally we would like to have components be as interchangeable as possible.  
-        * General complexity of low level networking
-        * We do not need all the control to simply transfer text/some positions between host and clients. 
-\paragraph{Photon}
-    * Strengths
-        * Very easy to set up.
-        * Already used by Vixel to some extent. 
-        * Full cross platform support. Can be used with Unity, but will also support a full javascript client.
-    * Weaknesses
-        * Free service provides limited functionality 
+Using the Unity Transport Layer API would in general give us a lot of control in terms of how communication is handled, but the general complexity of networking at the lower level may be too high for the simple communication between clients and host. Using the Transport Layer API could also potentially force us to use Unity on the client side which might result in a less maintainable and extensible solution. Ideally, we would prefer to have all the components as interchangeable as possible. 
+      
+\paragraph{Photon Engine}
+The other option is to use Photon for the communication between host and clients. The benefit of using Photon is that it is very easy to set up for the simple communication purposes we need and that it has full cross platform and cross technology support which allows a the C\# side of Unity to communicate with a Javascript side where both use Photon. The only downside of using Photon for this is that the free plan has somewhat limited functionality, although it should not be a limitation for a prototype. 
 
 \paragraph{Final Choice of Solution}
-    * Ultimately we went with Photon for communication as it was very easy to set up for prototyping and the additional cross platform support allowed us to deal with potentially different technologies on the client side outside of Unity if necessary. 
+We ultimately went with Photon for communication as it was easy to set up for prototyping and because it allowed for better interchangeability between components, giving us more freedom to make the client side however we wanted. 
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
 
 \subsubsection{Server - Stream Distribution} % Youtube, Twitch, Mixer, Self made streaming solution
-    * The encoded video data needs to be sent to a type of distribution server which takes the data and streams/distributes it to all connected clients in the form of a livestream.
-        * Because the host should not be using additional bandwidth other than sending the video data to this server. 
+The encoded video data from the host needs to be distributed to all the clients. To avoid additional use of bandwith and computation on the host, a distribution server was desired. Additionally, as noted in requirement \ref{req:minimal_latency}, we wanted as low latency between the host upload and clients download as possible, as to not disrupt the user experience. We saw three main alternatives when assessing this technological choice, a self-made streaming platform, using existing streaming middleware, or using existing streaming platforms like YouTube or Twitch.
+
+    % * The encoded video data needs to be sent to a type of distribution server which takes the data and streams/distributes it to all connected clients in the form of a livestream.
+    %     * Because the host should not be using additional bandwidth other than sending the video data to this server. 
+    
 \paragraph{Self-Made streaming platform}
-    * Description
-        * As the name implies, this solution would require us to make our own streaming platform which distributes the stream data to all clients. 
-    * Strengths
-        * Full control over this component of the solution
-        * Potentially no expenses
-    * Weaknesses
-        * We will have to host the server locally which limits bandwidth throughput
-        * Complexity of creating a streaming platform from scratch without any prior experience is very large. 
+A self-made streaming platform would give us total control over the component, allowing us to tweak whatever options we desired to decrease potential overhead. However, such a solution would require us to host the server ourselves, and the bandwidth throughput would be heavily affected by what deals we would get with our local internet service providers. Additionally, trying to create a streaming platform from scratch with no prior experience during the time available to us would be unrealistic at best.
+
+    % * Description
+    %     * As the name implies, this solution would require us to make our own streaming platform which distributes the stream data to all clients. 
+    % * Strengths
+    %     * Full control over this component of the solution
+    %     * Potentially no expenses
+    % * Weaknesses
+    %     * We will have to host the server locally which limits bandwidth throughput
+    %     * Complexity of creating a streaming platform from scratch without any prior experience is very large. 
 \paragraph{Making use of existing stream middleware}
     * Description
         * There is streaming middleware out there which could be used to create our own streaming platform in a quicker manner. \todo{add examples}
@@ -255,6 +158,7 @@ Image capturing is a subcomponent of the host component where the goal is to cap
             * Point 5.G in the youtube terms. 
                 * Not sure if we are breaking this rule, but we are blocking the possibility of pausing the stream.  
                 * And we are building functionality on top of it.
+                * Move this to final choice of solution and say: In retrospect we
         * Very limited control over the platform. 
 \paragraph{Final Choice of Solution}
     * Our final choice here ultimately ended up being using Twitch and Youtube as our streaming platforms. The rationale behind the choice is
@@ -263,34 +167,69 @@ Image capturing is a subcomponent of the host component where the goal is to cap
         * latency is of high importance so we went with the best free solution that also provided the minimal latency. 
     * The loosely coupled architecture of the project makes it easy to potentially replace what we used with another platform.
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 \subsubsection{Client} % Unity Overlay HTML 5, Moving to pure javascript, Remember: glorious html overlay hack
-    * Finally, we have the client component which plays the livestream while also listening for mouse clicks which are sent back to the host. 
-    * Limited options as no installation was a requirement.
+The client component is responsible for playing the livestream video, while also listening for mouse clicks, which are sent back to the host.
+Due to the requirement\reqref{req:no_client_software} of not installing any software on the client, our options for creating the client application was quite limited. 
+To comply with the requirement we choose to create a web application, however, we identified some alternatives as to how we could best achieve the desired functionality.
+
 \paragraph{Pure Javascript Client}
-    * Description
-        * A pure Javascript Client could make use of the Photon Javascript API for communication between clients.
-        * Playing the livestream could be handled with a embedded player and a invisible overlay to handle mouse clicks(using base Javascript input functionality). 
-    * Strengths
-        * Pure cross platform functionality. 
-        * Very lightweight. 
-    * Weaknesses
-        * Unfamiliarity with Javascript decreases productivity. 
-        * Photon's Javascript API has limited documentation
-\paragraph{HTML5 Youtube Player With Unity WebGL Overlay}
-    * Description
-        * Another option is to have a Unity interface as the overlay over the stream player. 
-        * Using Javascript plugins for Unity to communicate between Unity and Javascript. 
-        * Unity can take care of input handling. 
-    * Strengths
-        * Rapid prototyping due to more familiar technology
-        * Reducing complexity by using some of the same technology on both host and client side.
-        * Photon support is better using Unity. 
-    * Weaknesses
-        * Unity's WebGL support is still in an early phase. How well it runs on a mobile or tablet is unknown. 
-        * A rather heavy solution. 
-        * Takes a lot of time to build with WebGL
-            * Not robust at all, fails randomly during builds
+An obvious solution for the client application is to create it in plain javascript. Javascript would allow us to play videos with embedded links, and register mouse input from the user. Creating the client in pure javascript would ensure cross platform compatibility in a lightweight manner. However, there are some disadvantages to this approach. Photon supplied javascript support, however, cross-platform communication with Unity applications does not come right out of the box\cite{photon_javascript}, and their documentation on the javascript API leaves a lot to be desired. Additionally, neither of us are particularly well versed in javascript, which would decrease our prototyping productivity. 
+
+\paragraph{Unity WebGL}
+Unity has support for creating HTML5 applications using WebGL\cite{unity_webgl}, through the translation of C\# and UnityScript code to Javascript. Unity was quite desirable for us, it would allow us to not only have the same technology from host to client, reducing complexity, but also allow for fast prototyping as we were familiar with the technology. 
+However, Unity WebGL also brings some challenges. Unity WebGL support is lacking in several aspects, with builds that are prone to fail randomly, or take a long time. While WebGL on mobile and tablet devices are not directly supported by Unity, Unity Technologies state in their documentation that high-end devices might be able to run WebGL applications. Due to the low level of computation required by our client application, we think it would be possible to run it on a mobile or tablet device. However, how well the application runs on a mobile or tablet device is unknown. Additionally, Unity is a heavy solution for the problem we are trying to solve.
+Using Unity would handle the problem of registering input and communicating with the host. However, we would still need to display the video stream coming from the host. Several solutions was investigated to solve this problem.
+
+\subparagraph{Video Player Component}
+Unity's video player component allows for playback of videos, by rendering the video onto the texture of a game object\cite{unity_video_player}. The video player component has support for streaming videos from an URL. However, this has to be the direct video URL, meaning that a regular YouTube URL would need to be decoded to get access to the actual video feed, before it could be supplied to the video player component. Additionally, it is uncertain if such a solution would go against YouTube's guidelines\cite[5.1 A]{youtube_guidelines}.
+
+\subparagraph{YouTube Player (Asset Store)}
+Several YouTube video player solutions exist within the Unity ecosystem. However, we were unable to find any free solutions that also guaranteed cross platform support. 
+
+\subparagraph{In App Browser}
+Another alternative would be to create a browser within Unity\cite{unity_simple_browser}. Such a browser would easily integrate with whatever streaming platform that was chosen, however, it was only supported on windows, and would have been quite a heavy solution.
+
+\subparagraph{WebGL Overlay Over Iframe}
+\todo{Rephrase most of this!}
+A fourth solution is to make the WebGL application transparent and place it on top of a video player. Such a solution is possible as Unity supports interacting with browser scripting through javascript\cite{unity_webgl_javascript_interaction}, allowing us to modify the HTML document the WebGL application is deployed in. 
+This allows Unity to take care of the input handling, and communication with the host, while the video stream is handled by an iframe video player. A benefit of this approach is the louse coupling to the streaming service it creates, as it only requires an embeddable iframe link to where the video stream is.
+
+    
+% \paragraph{HTML5 Youtube Player With Unity WebGL Overlay}
+%     * Description
+%         * Another option is to have a Unity interface as the overlay over the stream player. 
+%         * Using Javascript plugins for Unity to communicate between Unity and Javascript. 
+%         * Unity can take care of input handling. 
+%     * Strengths
+%         * Rapid prototyping due to more familiar technology
+%         * Reducing complexity by using some of the same technology on both host and client side.
+%         * Photon support is better using Unity. 
+%     * Weaknesses
+%         * Unity's WebGL support is still in an early phase. How well it runs on a mobile or tablet is unknown. 
+%         * A rather heavy solution. 
+%         * Takes a lot of time to build with WebGL
+%             * Not robust at all, fails randomly during builds
+
 \paragraph{Final Choice of Solution}
-    * Final choice ended up being the Unity WebGL even though the Javascript option technically is a bit better.
-        * The rationale behind this was to get the prototype done as quick as possible for the sake of testing and optimizing. 
-        * We started some work on the Javascript side after finishing Unity, but we did not have the time to finish it. 
+In the end we selected the Unity WebGL overlay solution, even though using pure javascript technically is a better choice. Using the WebGL overlay allowed us to start prototyping, testing, and optimizing faster, which we considered more important at the time. After initial prototyping we started to create a pure javascript client version, however, we did not have the time to finish it.

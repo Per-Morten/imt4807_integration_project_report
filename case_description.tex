@@ -47,6 +47,9 @@ Due to the fact that the client application should be usable on low power device
 VR applications require a high framerate to ensure a high quality user experience. Because of this, it is desirable that the image capture and streaming adds minimal overhead to the host application.
 \todo{Add encouragement of 90 fps and source? https://www.technobuffalo.com/2015/11/20/playstation-vr-framerate-90fps-60fps-minimum/}
 
+\requirement{Minimal Latency}{req:minimal_latency}
+\todo{Write about this}
+
 \subsubsection{Ranking Requirements}
 Following their identification, the requirements were ranked based on their importance towards the end product. The lower score, the earlier this requirement would be sacrified to \rephrase{deal with scoping issues.}
 
@@ -61,6 +64,7 @@ Following their identification, the requirements were ranked based on their impo
         Requirement \ref{req:video_transfer}                & 3                 \\
         Requirement \ref{req:video_display}                 & 3                 \\
         Requirement \ref{req:no_client_software}            & 3                 \\
+        Requirement \ref{req:minimal_latency}               & 3                 \\
         Requirement \ref{req:client_interaction}            & 2                 \\
         Requirement \ref{req:minimal_processing_client}     & 2                 \\
         Requirement \ref{req:minimal_processing_host}       & 2                 \\
@@ -71,3 +75,4 @@ Following their identification, the requirements were ranked based on their impo
     \label{tab:requirements_ranking}
 \end{table}
 
+\todo{Add rationale for why it is streamed, and why we can't just do simple multiplayer through Unity, we need a thin client}
