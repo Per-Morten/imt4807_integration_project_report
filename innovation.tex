@@ -1,0 +1,57 @@
+\section{Innovation}
+
+\subsection{Methodology}
+Through this section we will discuss the level of innovation of both the project as a whole, and the more novel component solutions. This is done using the Norwegian Research Council's scale of innovativeness\cite{nrcs}.
+\todo{Rewrite this as some of it is going down in discussion}
+%The original idea for the project was conceived by Vixel, making it difficult to discuss the innovation process, as we did not partake in it. However, we will evaluate some of the more novel design decisions within the project, as well as the project as a whole, through the lens of their level of innovation. To asses these aspects, we primarily look at one scales (Add the scale).
+
+\todo{Ask Rune how to cite Levels of innovation (Norwegian Research Council Scale)}
+% Figure ^ out ourselves
+%\todo{Ask Rune about what we do with the overlap between the two scales}
+%\todo{Ask Rune is it ok to only go with one of them}
+%\todo{Ask Rune about this section in general}
+\todo{Make sure that cloud gaming, twitch plays, etc is explained in background.}
+
+\subsection{Overall Solution}
+The overall solution could be seen as relatively innovative and inventive. On the Norwegian Research Council's\cite{nrcs} scale of innovativeness we argue that it can be categorized at level 3, being innovative for the company, but small compared to the industry.
+
+Normally spectator functionality is integrated into the game or application itself, leading to software requirements; in that you need to install the application, and also the need for hardware capable of running the software. The lightweight project solution has relaxed these normally substantial requirements, as the user does not need to install the client application, additionally only a video stream is required, which most normal computing devices can handle without issues. The innovative aspect to this solution is the removal of spectating as a feature tied to the application or game, replaced by an online stream. An additional benefit of this is that less synchronization is required within the game or application, as spectators are only receiving a video feed, at the cost of individual camera control.
+
+The solution allows the clients to interact with the video stream in minor ways. This is similar to functionality found in the "twitch plays series"\cite{twitch_plays}, but the interaction with the stream happens through clicking on the video, rather than through chat. We could also draw parallels to cloud gaming, however, in our case there are multiple users interacting with the same application, rather than just one, and with more restrictions on the interactive options. In these aspects the client's interface can be seen as innovative.
+
+These aspects are important for the company as it gives them access to more customers, and potentially new customer groups. The solution allows customers without VR hardware to participate in the software, increasing the potential number of users. Additionally, not requiring any software installation makes it much easier to demonstrate the product for potential customers.
+
+We cannot argue that the entire solution is a major improvement for the industry. After an overview scan of competing VR collaboration tools, we identified that several of them had the option of spectating or collaborating through non VR platforms using an application. This leads us to believe that the video stream approach is fairly innovate, however, we cannot guarantee that others industry have not made a similar solution.
+
+\subsection{Per Component}
+\subsubsection{Invisible Unity Overlay}
+The Unity Invisible Overlay for the client can be seen as a level 2 innovation, meaning that it is a minor innovation for the company\cite{nrcs}. 
+
+We have seen a similar problem of creating a transparent Unity WebGL application been discussed before\cite{unity_transparent_webgl}, in this case a partially invisible overlay was desired, in order to create graphical widgets on top of a video stream\cite{unity_forum_partially_invisible}. In our case we only needed input functionality from Unity, meaning that the entire application could be rendered invisible, which is the solution we went with. Using Unity WebGL as an invisible overlay could be seen as innovative, as we assume this is not common practice. However, it is a very heavyweight solution, making the fact that it is not common practice, quite reasonable. As mentioned in Section \ref{par:client_final}, this solution allowed us to prototype and develop faster, making it valuable.
+
+\subsubsection{Using Streaming Platforms as a Distribution Service}
+The normal use-case of stream distribution services is to create own solutions, or make use of third party services. In our case we went for the somewhat different approach of using YouTube and Twitch.tv. We consider this choice as innovation level 2, minor innovation for the company\cite{nrcs}. We are unsure exactly how to categorize the solution based on its prominence in the industry. The reason being that it might go against the terms of service for the different platforms, meaning that due legal ramifications any similar usage patterns are not discussed loudly in the industry. 
+
+
+
+% Template:
+% Scale of inventiveness:
+% Scale of innovation:
+%\subsection{Per Component}
+%* Unity Overlay Hack over YouTube (even though its against terms of service)
+    %* Similar problem, but different solution:  %\url{https://support.unity3d.com/hc/en-us/articles/208892946-How-can-I-make-the-canvas-transparent-on-WebGL-?mobile_site=true}
+    %* Discuss how that solution is used to get only get some rendering transparent. For example to show 3d models in a webpage.
+     %   * The largest difference for us is using Unity to get input, while not rendering the game at all.
+    %* Got the shit to work, but we are throwing it out for a reason.
+    %* Innovative to use the technology in this way, but also stupid.
+    %* Be honest about the fact that we are unsure of how much this is used in the industry, but we don't assume that much.
+    %* Scale of inventiveness: 2, Minor (but not efficient! probably also not improvement)
+    %* Scale of innovation: 2, Minor innovation for the company.
+%* Using streaming services as a distribution service
+    %* Could potentially have been used more within the industry, but due to the legal ramifications of that, they are probably not talking loudly about it.
+    %* Makes it hard to categorize
+    %* Scale of inventiveness: 2, Minor Improvement.
+    %* Scale of innovation: 2, Minor innovation for the company.
+
+\subsection{Discussion}
+The fact that we did not come up with the original solution limits our ability to assess the innovation process behind that solution. Because of this, we primarily focused on some of the more novel design decisions, as well as the project as a whole. We chose not to categorize inventiveness as in our case there was too much overlap between the level of inventiveness and innovation.

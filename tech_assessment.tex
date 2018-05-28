@@ -1,41 +1,3 @@
-\section{Process}
-\subsection{Methodology}
-\begin{itemize}
-    \item Meetings
-    \item Extreme programming
-    \item Evaluation Criteria (How were they defined)
-\end{itemize}
-
-\subsection{Communication}
-Communication with Vixel was done through biweekly status meetings, where they would be briefed on progress, and answer any questions we had related to the direction of the project. Additionally, we would sit in their office when working with the project, allowing for easy communication. Any communication outside of these situations happened through Slack.
-
-\subsection{Pair Programming}
-Throughout the project we adopted a pair programming methodology. This was done to ensure that both group members were familiar with the functionality of the code, and to allow us to quickly exchange ideas as to how the functionality could be implemented.
-
-\subsection{High-level Architecture}
-\subsubsection{Vixel Proposed Architecture}
-Vixel was quite clear on what solution they desired, and presented us with a proposed architecture, seen in Figure~\ref{fig:proposed_architecture}. In their proposed architecture the images captured by the camera is sent to a distribution server. From here the video feed is distributed to an clients who \rephrase{are listening for it.}
-In the case where a client user clicks to highlight something on their screen, that interaction request is sent to the host through the distribution server.
-
-
-\begin{figure}
-    \includegraphics[width=0.8\textwidth]{vixel_stream}
-    \caption{Proposed architecture by Vixel}
-    \label{fig:proposed_architecture}
-\end{figure}
-
-\subsubsection{Our Architecture}
-Our final solution is kept quite close to the original solution, with some minor differences. As seen in Figure~\ref{fig:our_architecture} rather than only having one distribution server, two cloud servers are used to achieve the desired functionality. The video stream captured by the camera in the host VR application is sent to a dedicated streaming platform, rather than the distribution server. Interactions between the client and the VR application, such as highlighting, is handled through the Photon Cloud. With the move to a dedicated streaming platforms, the client needs to know where to watch the stream. The URL for this stream is also communicated through Photon Cloud.
-
-\paragraph{Justification}
-Splitting the distribution server into two separate pieces allowed us to better focus on combining existing solutions to allow us to get a functioning proof of concept faster. Having a distribution server would require us to set up a basic streaming platform. The distribution server would also need functionality to allow it to speak to both the host side Unity VR application and the client web application. Such a solution would require us to satisfy potentially complex networking protocols. This was something we neither had time, nor competence to do.
-
-\begin{figure}
-    \includegraphics[width=0.8\textwidth]{our_stream}
-    \caption{Final Architecture}
-    \label{fig:our_architecture}
-\end{figure}
-
 \subsection{Technology Assessment and Component Architecture}
 As part of developing the component architecture we had to assess a large array of various technologies to best satisfy Vixel's requirements. This section contains the assessment framework we used, a brief description of each alternative we looked at, its strengths and weaknesses as well as our final choice of technology.  
 
@@ -121,13 +83,14 @@ We ultimately went with Photon for communication as it was easy to set up for pr
     
 
 \subsubsection{Server - Stream Distribution} % Youtube, Twitch, Mixer, Self made streaming solution
-The encoded video data from the host needs to be distributed to all the clients. To avoid additional use of bandwith and computation on the host, a distribution server was desired. Additionally, as noted in requirement \ref{req:minimal_latency}, we wanted as low latency between the host upload and clients download as possible, as to not disrupt the user experience. We saw three main alternatives when assessing this technological choice, a self-made streaming platform, using existing streaming middleware, or using existing streaming platforms like YouTube or Twitch.
+The encoded video data from the host needs to be distributed to all the clients. To avoid additional use of bandwith and computation on the host, a distribution server was desired. Additionally, as noted in requirement \ref{req:minimal_latency}, we wanted as low latency between the host upload and clients download as possible, as to not disrupt the user experience. We saw two main alternatives when assessing this technological choice, a self-made streaming platform, or using existing streaming platforms like YouTube or Twitch.
 
     % * The encoded video data needs to be sent to a type of distribution server which takes the data and streams/distributes it to all connected clients in the form of a livestream.
     %     * Because the host should not be using additional bandwidth other than sending the video data to this server. 
     
 \paragraph{Self-Made streaming platform}
-A self-made streaming platform would give us total control over the component, allowing us to tweak whatever options we desired to decrease potential overhead. However, such a solution would require us to host the server ourselves, and the bandwidth throughput would be heavily affected by what deals we would get with our local internet service providers. Additionally, trying to create a streaming platform from scratch with no prior experience during the time available to us would be unrealistic at best.
+A self-made streaming platform would give us total control over the component, allowing us to tweak whatever options we desired to decrease potential overhead. However, such a solution would require us to host the server ourselves, and the bandwidth throughput would be heavily affected by what deals we would get with our local internet service providers. Additionally, trying to create a streaming platform from scratch with no prior experience during the time available to us would be unrealistic at best. 
+
 
     % * Description
     %     * As the name implies, this solution would require us to make our own streaming platform which distributes the stream data to all clients. 
@@ -137,35 +100,49 @@ A self-made streaming platform would give us total control over the component, a
     % * Weaknesses
     %     * We will have to host the server locally which limits bandwidth throughput
     %     * Complexity of creating a streaming platform from scratch without any prior experience is very large. 
-\paragraph{Making use of existing stream middleware}
-    * Description
-        * There is streaming middleware out there which could be used to create our own streaming platform in a quicker manner. \todo{add examples}
-    * Strengths
-        * Potential cloud distribution should make bandwidth less of a problem.
-        * A fair amount of control is still given in relation to how the server distributes streaming. 
-    * Weaknesses
-        * There are usually expenses involved in both the platform and cloud hosting.
-        * Unknown latency between host and client. 
+% \paragraph{Making use of existing stream middleware}
+% Another alternative was to make use of existing stream middleware. 
+%     * Description
+%         * There is streaming middleware out there which could be used to create our own streaming platform in a quicker manner. \todo{add examples}
+%     * Strengths
+%         * Potential cloud distribution should make bandwidth less of a problem.
+%         * A fair amount of control is still given in relation to how the server distributes streaming. 
+%     * Weaknesses
+%         * There are usually expenses involved in both the platform and cloud hosting.
+%         * Unknown latency between host and client. 
+% * https://video.ibm.com/product/ustream-pro-broadcasting-video-platform
+% * https://developer.akamai.com/learn/Content_Delivery/Streaming_Content.html
+% * https://blogs.msdn.microsoft.com/premier_developer/2017/12/02/how-to-setup-live-streaming-server-using-azure-media-service-in-less-than-30-mins/
+% * https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/HowStreamingDistributionsWork.html
+
+
 \paragraph{Making use of streaming platforms like Youtube and Twitch}
-    * Description
-        * The final alternative would be to make use of existing streaming platforms like Youtube/Twitch and embed their stream player into our website with input functionality overlayed on top of the player. 
-    * Strengths
-        * Completely free
-        * High performance distribution of streams which should result in minimal latency
-        * Easier and faster to prototype with
-    * Weaknesses
-        * Technically using the platforms for purposes they are not made for.
-            * Point 5.G in the youtube terms. 
-                * Not sure if we are breaking this rule, but we are blocking the possibility of pausing the stream.  
-                * And we are building functionality on top of it.
-                * Move this to final choice of solution and say: In retrospect we
-        * Very limited control over the platform. 
+A third option would be to make use of existing streaming platforms like YouTube or Twitch. Using YouTube or Twitch's network would give us access to high performance and minimal latency solutions, that would be feasible to prototype with. However, with such a solution we would have limited control over the streaming platform.
+
+
+    % * Description
+    %     * The final alternative would be to make use of existing streaming platforms like Youtube/Twitch and embed their stream player into our website with input functionality overlayed on top of the player. 
+    % * Strengths
+    %     * Completely free
+    %     * High performance distribution of streams which should result in minimal latency
+    %     * Easier and faster to prototype with
+    % * Weaknesses
+    %     * Technically using the platforms for purposes they are not made for.
+    %         * Point 5.G in the youtube terms. 
+    %             * Not sure if we are breaking this rule, but we are blocking the possibility of pausing the stream.  
+    %             * And we are building functionality on top of it.
+    %             * Move this to final choice of solution and say: In retrospect we
+    %     * Very limited control over the platform. 
+        
 \paragraph{Final Choice of Solution}
-    * Our final choice here ultimately ended up being using Twitch and Youtube as our streaming platforms. The rationale behind the choice is
-        * we simply did not have the time and resources available to make our own streaming platform
-        * we do not want to spend money on the solution for a prototype
-        * latency is of high importance so we went with the best free solution that also provided the minimal latency. 
-    * The loosely coupled architecture of the project makes it easy to potentially replace what we used with another platform.
+\label{par:stream_dist_final}
+In the end we went with the solution of using Twitch and YouTube as our streaming platforms. The rationale was that we did not have the time nor resources to make our own streaming platform, and we were naively unaware of the underlying technologies and middleware that could be used to create a personal platform quicker. In retrospect we should obviously have done a more thorough search and used existing middleware, rather than YouTube and Twitch. For one, such a solution would not lead us to violating terms of service\cite[5.1 G]{youtube_guidelines}, which we were made aware of late in the project. Additionally, using existing middleware would allow us more control. 
+
+    % * Our final choice here ultimately ended up being using Twitch and Youtube as our streaming platforms. The rationale behind the choice is
+    %     * we simply did not have the time and resources available to make our own streaming platform
+    %     * we do not want to spend money on the solution for a prototype
+    %     * latency is of high importance so we went with the best free solution that also provided the minimal latency. 
+    % * The loosely coupled architecture of the project makes it easy to potentially replace what we used with another platform.
 
 
 
@@ -213,7 +190,7 @@ Another alternative would be to create a browser within Unity\cite{unity_simple_
 \subparagraph{WebGL Overlay Over Iframe}
 \todo{Rephrase most of this!}
 A fourth solution is to make the WebGL application transparent and place it on top of a video player. Such a solution is possible as Unity supports interacting with browser scripting through javascript\cite{unity_webgl_javascript_interaction}, allowing us to modify the HTML document the WebGL application is deployed in. 
-This allows Unity to take care of the input handling, and communication with the host, while the video stream is handled by an iframe video player. A benefit of this approach is the louse coupling to the streaming service it creates, as it only requires an embeddable iframe link to where the video stream is.
+This allows Unity to take care of the input handling, and communication with the host, while the video stream is handled by an iframe video player. A benefit of this approach is the loose coupling to the streaming service it creates, as it only requires an embeddable iframe link to where the video stream is.
 
     
 % \paragraph{HTML5 Youtube Player With Unity WebGL Overlay}
@@ -232,4 +209,6 @@ This allows Unity to take care of the input handling, and communication with the
 %             * Not robust at all, fails randomly during builds
 
 \paragraph{Final Choice of Solution}
-In the end we selected the Unity WebGL overlay solution, even though using pure javascript technically is a better choice. Using the WebGL overlay allowed us to start prototyping, testing, and optimizing faster, which we considered more important at the time. After initial prototyping we started to create a pure javascript client version, however, we did not have the time to finish it.
+\label{par:client_final}
+In the end we selected the Unity WebGL overlay solution, even though using pure javascript technically is a better choice. Using the WebGL overlay allowed us to start prototyping, testing, and optimizing faster, which we considered more important at the time. After initial prototyping we started to create a pure javascript client version, however, we did not have the time to finish it. 
+As mentioned in Section \ref{par:stream_dist_final}, building functionality on top of existing services might go against terms of service, a benefit with our solution as that the client is not coupled to the streaming service, we only require an embeddable link, meaning that we shouldn't need to change any logic in the client application when changing streaming service.
