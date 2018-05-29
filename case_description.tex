@@ -1,32 +1,27 @@
 \section{Case Description}
-\begin{itemize}
-    \item Problem as presented by Vixel
-    \item Requirements 
-\end{itemize}
 
 % Skriv om hvordan vixel lager møterom software, men ønsker en spectator mode for de som ikke har VR headset
-\todo{Tydeliggjør at Vixel jobber i Unity, enten her eller i bakgrunn}
-\todo{Snakk med Vixel om dette er hva VREX er}
-Vixel\cite{vixel} is a Norwegian company who creates XR collaboration tools targeting larger organizations. Their software, VREX\cite{vrex}, allows users from across the globe to meet within a 3D virtual environment to discuss problems, review designs, or other collaborative processes. Vixels current solution does not require VR-equipment for participation, as users can participate through regular laptop or desktop computers. However, participation still requires installing Vixels software. 
+\todo{Send til Vixel og hør om det ser riktig ut}
+Vixel\cite{vixel} is a Norwegian company who creates XR collaboration tools targeting larger organizations. Their software, VREX\cite{vrex}, allows users from across the globe to meet within a 3D virtual environment to discuss problems, review designs, or other collaborative processes. Vixel's current solution does not require VR-equipment for participation, as users can participate through regular laptop or desktop computers. However, participation still requires installing Vixel's software. 
 
-Vixel wanted a prototype for a solution that would allow more users to participate in the collaboration tools in a simple manner, without having to install their software directly on the device in use. They envisioned a spectator mode, where a camera was placed within the VR environment and the video feed captured by this camera would be streamed over the internet.  Users who did not possess a computer with the VREX software could then be given a link to a web page where they could watch the video stream, and partake in the meeting in a basic manner, for example by highlighting the objects they could see on their screen. The solution should be platform agnostic, allowing it to be used both on tablet devices, smartphones, and personal computers. The users within the VR application could also interact with the camera by moving it around, to change what the viewers could see.
+Vixel wanted a prototype for a solution that would allow more users to participate with the collaboration tools in a simple manner, without having to install their software directly on the device in use. They envisioned a spectator mode, where a camera was placed within the VR environment and the video feed captured by this camera would be streamed over the internet. Users who did not possess a computer with the VREX software could then be given a link to a web page where they could watch the video stream. This would allow them to partake in the meeting in a basic manner, for example by highlighting the objects they could see on their screen. The solution should be platform agnostic, allowing it to be used on both tablet devices, smartphones, and personal computers. The users within the VR application could also interact with the camera by moving it around, to change what the viewers could see.
 
 \subsection{Similar Solutions}
-We are unaware of existing work that cover all the aspects that Vixel want in their solution, however, we are aware of similar sub components. In terms of interacting with a video stream Twitch.tv have through their API supplied access to the chat functionality in their services, allowing developers to create applications where, for example, chat participants can interact with a streamers video game by enter commands into the chat window\cite{twitch_integration_clustertruck, twitch_integration_details}. Similar functionality was also deployed to create the Twitch Plays Pokémon application, where several thousand players tried to play the game Pokémon Red collaboratively by entering the desired button presses through chat\cite{twitch_plays_pokemon}. Finally, cloud gaming offers similar functionality in the regard that the player interacts with a video stream for a game using the physical controller as a interface. While cloud gaming is similar to the solution Vixel wants, it is also different in the regard that the player has full camera control over the game and there is only one player per stream.  
+We are unaware of existing work that covers all the aspects that Vixel want in their solution, however, we are aware of similar sub components. In terms of interacting with a video stream Twitch.tv have through their API supplied access to the chat functionality in their services. This allows developers to create applications where, for example, chat participants can interact with a streamers video game by entering commands into the chat window\cite{twitch_integration_clustertruck, twitch_integration_details}. Similar functionality was also deployed to create the Twitch Plays Pokémon application, where several thousand players tried to play the game ''Pokémon Red'' collaboratively by entering the desired button presses through chat\cite{twitch_plays_pokemon}. Finally, cloud gaming is similar in the regard that the player interacts with a video stream for a game using the physical controller as a interface. While cloud gaming is similar to the solution Vixel wants, it is also different in the regard that the player has full camera control over the game and there is only one player per stream.  
 
 
 % Prototype or proof of concept?
 \subsection{Requirements}
-Following the discussion about the problem Vixel wanted to solve was a list of requirements. The importance of these requirements was stressed for a final product, however, for the proof of concept prototype their importance was relaxed.
+Following the case description was a list of requirements. The importance of these requirements was stressed for a final product, however, for the proof of concept prototype their importance was relaxed.
 
 \subsubsection{Functional Requirements}
-From the description of the case, and discussions with Vixel, the following functional requirements were discovered.
+From the description of the case, and discussions with Vixel, the following functional requirements were discovered:
 
 \requirement{Capture Image From Unity}{req:image_capture_host}
-The solution would need to capture image data from the camera within Unity application. The image data needs to be encoded into a streaming compatible video format before it is transferred.
+The solution would need to capture image data from the camera within a Unity application. The image data needs to be encoded into a streaming compatible video format before it is transferred.
 
 \requirement{Transfer Video Data From Host to Client, Through an External Source}{req:video_transfer}
-Following its creation, the video data needs to be streamed to the client. This should happen through an external source that can act as an amplifier, as to not impose to much computations upon the host.
+Following its creation, the video data needs to be streamed to the client. This should happen through an external source that can act as a distributor, as to not impose too much computations upon the host.
 
 \requirement{Display Video Data on Client}{req:video_display}
 Upon reception of the video data the client application should play the video data, allowing the user to see it. 
@@ -38,20 +33,17 @@ The application should allow the client to interact with the virtual environment
 In addition to interacting with the virtual environment, Vixel also desired chat functionality, to allow the users to communicate with each other.
 % Mention that Chat was dropped.
 
-\todo{Where the heck do we place this? Functional or Operational?}
 \requirement{No Software Requirements on Client}{req:no_client_software}
-Vixel stressed that the client should not be required to install any software on their devices to make use of the application. \rephrase{Such a functionally would allow users to quickly join collaborative meetings, or to quickly demo functionality for new users.}
+Vixel stressed that the client user should not be required to install any software on their devices to make use of the application. Such functionality would allow users to quickly join collaborative meetings.
 
 \subsubsection{Operational Requirements}
-Operational requirements related to the application was also identified.
+Operational requirements related to the application were also identified.
 
 \requirement{Minimal Processing in Client Application}{req:minimal_processing_client}
-Due to the fact that the client application should be usable on low power devices like tablets or smartphones it is desirable that processing is kept to a minimum. This is to ensure that the user experience is \rephrase{damaged by lag}, and that the application does not drain the battery more than necessary.
+Due to the fact that the client application should be usable on low powered devices like tablets or smartphones it is desirable that processing is kept to a minimum. This is to ensure that the user experience is not hindered by low framerates, and that the application does not drain more battery than necessary.
 
 \requirement{Minimal Overhead in Host Application}{req:minimal_processing_host}
-VR applications require a high framerate to ensure a high quality user experience. Because of this, it is desirable that the image capture and streaming adds minimal overhead to the host application.
-\todo{Add comment here that we don't really have a set target, because we always want it as small as possible to get the time to render other stuff}
-\todo{Add encouragement of 90 fps and source? https://www.technobuffalo.com/2015/11/20/playstation-vr-framerate-90fps-60fps-minimum/}
+VR applications require a high framerate to ensure a comfortable user experience\cite{sony_high_fps}. Because of this, it is desirable that the image capture and streaming adds minimal overhead to the host application.
 
 \requirement{Minimal Latency}{req:minimal_latency}
 The ultimate goal for the video stream is real time interaction. This is not realistic for this project, however, Vixel encouraged us to aim for as low latency as possible. Low latency improves the user experience, as the users get feedback on their interactions quicker.
@@ -61,12 +53,10 @@ The ultimate goal for the video stream is real time interaction. This is not rea
 As Vixel writes their software using the Unity engine they required that the host solution should be integrated with their existing Unity applications.
 
 \subsubsection{Ranking Requirements}
-Following their identification, the requirements were ranked based on their importance towards the end product. The lower score, the earlier this requirement would be sacrified to \rephrase{deal with scoping issues.}
+Following their identification, the requirements were ranked based on their importance towards the end product, seen in Table~\ref{tab:requirements_ranking}. The lower the score, the earlier this requirement would be sacrificed in case of scoping issues.
 
-\todo{Format this so that it is linewidth}
 \begin{table}[]
-    \centering
-    \begin{tabular}{ | l | l |}
+    \begin{tabular}{ | p{5cm} | p{6.25cm} | }
         \hline
         Requirement & Importance (1-3) \\
         \hline
@@ -86,4 +76,4 @@ Following their identification, the requirements were ranked based on their impo
     \label{tab:requirements_ranking}
 \end{table}
 
-\todo{Add rationale for why it is streamed, and why we can't just do simple multiplayer through Unity, we need a thin client}
+%\todo{Add rationale for why it is streamed, and why we can't just do simple multiplayer through Unity, we need a thin client}
