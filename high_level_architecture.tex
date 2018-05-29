@@ -1,5 +1,5 @@
-\subsection{High-level Architecture}
-\subsubsection{Vixel Proposed Architecture}
+\section{High-level Architecture}
+\subsection{Vixel Proposed Architecture}
 Vixel was quite clear on what solution they desired, and presented us with a proposed architecture, seen in Figure~\ref{fig:proposed_architecture}. In their proposed architecture the images captured by the camera is sent to a distribution server. From here the video feed is distributed to an clients who \rephrase{are listening for it.}
 In the case where a client user clicks to highlight something on their screen, that interaction request is sent to the host through the distribution server.
 
@@ -10,10 +10,10 @@ In the case where a client user clicks to highlight something on their screen, t
     \label{fig:proposed_architecture}
 \end{figure}
 
-\subsubsection{Our Architecture}
+\subsection{Our Architecture}
 Our final solution is kept quite close to the original solution, with some minor differences. As seen in Figure~\ref{fig:our_architecture} rather than only having one distribution server, two cloud servers are used to achieve the desired functionality. The video stream captured by the camera in the host VR application is sent to a dedicated streaming platform, rather than the distribution server. Interactions between the client and the VR application, such as highlighting, is handled through the Photon Cloud. With the move to a dedicated streaming platforms, the client needs to know where to watch the stream. The URL for this stream is also communicated through Photon Cloud.
 
-\paragraph{Justification}
+\subsubsection{Justification}
 Splitting the distribution server into two separate pieces allowed us to better focus on combining existing solutions to allow us to get a functioning proof of concept faster. Having a distribution server would require us to set up a basic streaming platform. The distribution server would also need functionality to allow it to speak to both the host side Unity VR application and the client web application. Such a solution would require us to satisfy potentially complex networking protocols. This was something we neither had time, nor competence to do.
 
 \begin{figure}
@@ -21,8 +21,3 @@ Splitting the distribution server into two separate pieces allowed us to better 
     \caption{Final Architecture}
     \label{fig:our_architecture}
 \end{figure}
-
-% Results like stuff
-\todo{Youtube video demonstration and mentioning what final product actually is}
-\todo{GitHub Repo link}
-\todo{What are the capabilities of the final product?}
