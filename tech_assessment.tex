@@ -38,37 +38,37 @@ For the final solution we use a modified version of FFmpegOut. In this modified 
     
 %%%%%%% Note: If we are to cut anything: we can technically cut a large amount of this as we mentioned that FFMPEG Handles Data Transfer
 
-\todo{Continue proof reading from here}
 \subsection{Host - Data Transfer} % FFMPEG
 Data Transfer is another subcomponent of the host side where the main goal is to take the encoded video data and stream it to a distribution server. For this subcomponent we considered the following solutions:
 
 \subsubsection{Native C++ Plugin Using Boost}
-Similar to the actual image capture, we considered using a native C++ plugin for Unity. In this case we would have been using the networking components of the Boost library\cite{boost} to transfer data to the distribution server. Using Boost would allow us to have full access to sockets which gives a lot of control. At the same time, this means that we would have to make our own protocols which would take time. Boost is also a big library which can result in lengthy compilation times. The fact that Unity needs to be restarted to reload the plugin is also a downside. 
+Similar to the image capture, we considered using a native C++ plugin for Unity. In this case we would have been using the networking components of the Boost library\cite{boost} to transfer data to the distribution server. Using Boost would allow us to have full access to sockets which gives a lot of control. At the same time, this means that we would need to make our own protocols which would not be trivial. Boost is also a big library which can result in lengthy compilation times. The fact that Unity needs to be restarted to reload the plugin is also a downside. 
 
 \subsubsection{Unity's Transport Layer}
-While Unity offers a high level network API which is primarily focused around networking for games, it also offers a lower level API called the Unity Transport Layer\cite{unity_transportLayer}. This API should provide enough functionality to facilitate the process of data transfer to a distribution server without the need for any additional dependencies. In general, the reliability of this component of the Unity engine should also be fairly solid as all of Unity's networking functionality is built on top of it. The main problems with this API is that the documentation in general is not particularly comprehensive, that we would probably have to write our own data transfer protocols and the fact that we have limited familiarity with the technology which makes it hard to prototype with as the complexity is somewhat high. 
+While Unity offers a high level network API which is primarily focused around networking for games, it also offers a lower level API called the Unity Transport Layer\cite{unity_transportLayer}. This API should provide enough functionality to facilitate the process of data transfer to a distribution server without the need for any additional dependencies. In general, the reliability of this component in the Unity engine should also be fairly solid as all of Unity's networking functionality is built on top of it. The main problems with this API is that the documentation in general is not particularly comprehensive, that we would probably have to write our own data transfer protocols, and the fact that we have limited familiarity with the technology which makes it hard to prototype with. 
 
 \subsubsection{Photon Engine}
-The Photon Engine\cite{photon_homepage} offers a Unity API for networking which we potentially could use for transferring data as it supports communication between many different platforms. The benefits of using the Photon Engine would be that later integration might be easier as Vixel already makes use of it. The Unity API is also fairly simple and well documented which should make it easy to prototype and implement functionality. Finally, it would allow us to use the same technology in multiple components regardless of platform as the engine supports many programming languages and platforms. A weakness of this solution is that it is not really built for transfer of video data, but rather smaller game state communication. The solution can also become expensive in order to get satisfactory performance from the provided cloud servers. 
+Photon Engine\cite{photon_homepage} offers a Unity API for networking which we potentially could use for transferring data as it supports communication between many different platforms. The benefits of using the Photon Engine would be that later integration might be easier as Vixel already is using it. The Unity API is also fairly simple and well documented which should make it easy to prototype and implement functionality.
+Finally, it would allow us to use the same technology in multiple components as the solution is cross platform and supports many programming languages. A weakness of this solution is that it is not really built for the transfer of video data, but rather smaller game state communication. Additionally, the solution can become expensive in order to get satisfactory performance from the provided cloud servers. 
 
 \subsubsection{FFmpeg}
-FFmpeg was already mentioned when listing alternatives for the previous subcomponent of the host side, but is again relevant here as it is related to this area as well. The benefit of using FFmpeg for data transfer is that it directly supports the RTMP protocol which is standard for video streaming. The library is also very mature and well documented which means that finding the necessary information for our goals should be fairly easy. The downside is the same as already mentioned in relation to the fact that the library is rather large so properly understanding it can take some time. 
+FFmpeg was already mentioned when listing alternatives for the previous subcomponent of the host side, but is again relevant here. The benefit of using FFmpeg for data transfer is that it directly supports the RTMP protocol which is quite standard for video streaming. The library is also very mature and well documented which means that finding the necessary information for our goals should be fairly easy. The downside is the same as already mentioned in relation to the fact that the library is rather large so properly understanding it can take some time. 
 
 \subsubsection{Final Choice of Solution}
 In general, it was hard to make a choice for this component as we had very limited prior experience with large scale data transfer. We had originally planned to try the Unity Transport Layer for data transfer as it would reduce the the overhead of working with additional technologies. We also considered trying the Photon Engine, but discussion with Vixel provided us with the information that Photon is not particularly efficient at transferring large amounts of data like video streams. We ultimately chose FFmpeg for data transfer as it already was used for video encoding. An additional benefit of choosing FFmpeg was that prototyping the solution took less time as FFmpeg could take care of several things for us which is very valuable when limited time is available. Since FFmpeg primarily is focused around working with video files it is also a very optimized library for this purpose, which is perfect for Requirement~\ref{req:minimal_latency} where minimal latency is preferred. 
 
 \subsection{Host/Client Communication} % Photon
-This component consists of facilitating the communication between the clients and the host. This includes distributing stream URLs from the host and the interaction from the client side to click on things they see in the stream. In general, the aforementioned alternative solutions for data transfer are relevant for communication although there are some exceptions. Since the client will be hosted on a web page, we need to make sure that cross technology and cross platform support is possible. This excludes the use of a native C++ plugin with Boost as it cannot easily interact with a Javascript web page. FFmpeg is also not relevant for this purpose as it only works with video files.  
+This component consists of facilitating the communication between the clients and the host. This includes distributing stream URLs from the host and the interaction from the client side to click on things they see in the stream. In general, some of the aforementioned alternative solutions for data transfer are relevant for communication although there are some exceptions. Since the client will be hosted on a web page, we need to make sure that cross technology and cross platform support is possible. 
     
 \subsubsection{Unity's Transport Layer}
 Using the Unity Transport Layer API would in general give us a lot of control in terms of how communication is handled, but the general complexity of networking at the lower level may be too high for the simple communication between clients and host. Using the Transport Layer API could also potentially force us to use Unity on the client side which might result in a less maintainable and extensible solution. Ideally, we would prefer to have all the components as interchangeable as possible. 
       
 \subsubsection{Photon Engine}
-The other option is to use Photon for the communication between host and clients. The benefit of using Photon is that it is very easy to set up for the simple communication purposes we need and that it has full cross platform and cross technology support which allows a the C\# side of Unity to communicate with a Javascript side where both use Photon. The only downside of using Photon for this is that the free plan has somewhat limited functionality, although it should not be a limitation for a prototype. 
+The other option is to use Photon for the communication between host and clients. The benefit of using Photon is that it is very easy to set up for the simple communication we need. Additionally it has cross platform support allowing us to make use of both Unity C\# and Javascript. The downsides of using Photon is that the free plan has somewhat limited functionality, although it should be sufficient for a prototype. Additionally, communication between Unity C\# and Javascript requires some extra work\cite{photon_javascript}.
 
 \subsubsection{Final Choice of Solution}
-We ultimately went with Photon for communication as it was easy to set up for prototyping and because it allowed for better interchangeability between components, giving us more freedom to make the client side however we wanted. 
-    
+We ultimately went with Photon for communication as it was easy to set up for prototyping and because it allowed for better interchangeability between components, giving us freedom to make the desired client side.
+
     
     
     
@@ -86,13 +86,13 @@ We ultimately went with Photon for communication as it was easy to set up for pr
     
 
 \subsection{Server - Stream Distribution} % Youtube, Twitch, Mixer, Self made streaming solution
-The encoded video data from the host needs to be distributed to all the clients. To avoid additional use of bandwith and computation on the host, a distribution server was desired. Additionally, as noted in requirement \ref{req:minimal_latency}, we wanted as low latency between the host upload and clients download as possible, as to not disrupt the user experience. We saw two main alternatives when assessing this technological choice, a self-made streaming platform, or using existing streaming platforms like YouTube or Twitch.
+The encoded video data from the host needs to be distributed to all the clients. To avoid additional use of bandwith and computation on the host, a distribution server was desired. Additionally, as noted in Requirement \ref{req:minimal_latency}, we wanted as low latency between the host upload and clients download as possible, as to not disrupt the user experience. We saw two main alternatives when assessing this technological choice, a self-made streaming platform, or using existing streaming platforms like YouTube or Twitch.tv.
 
     % * The encoded video data needs to be sent to a type of distribution server which takes the data and streams/distributes it to all connected clients in the form of a livestream.
     %     * Because the host should not be using additional bandwidth other than sending the video data to this server. 
     
 \subsubsection{Self-Made streaming platform}
-A self-made streaming platform would give us total control over the component, allowing us to tweak whatever options we desired to decrease potential overhead. However, such a solution would require us to host the server ourselves, and the bandwidth throughput would be heavily affected by what deals we would get with our local internet service providers. Additionally, trying to create a streaming platform from scratch with no prior experience during the time available to us would be unrealistic at best. 
+A self-made streaming platform would give us total control over the component, allowing us to tweak whatever options we desired to decrease potential overhead. However, such a solution would require us to host the server ourselves, and the bandwidth throughput would be heavily affected by what offers we would get with our local internet service providers. Additionally, trying to create a streaming platform from scratch with no prior experience during the time available to us would be unrealistic at best. 
 
 
     % * Description
@@ -120,7 +120,7 @@ A self-made streaming platform would give us total control over the component, a
 
 
 \subsubsection{Making use of streaming platforms like Youtube and Twitch}
-A third option would be to make use of existing streaming platforms like YouTube or Twitch. Using YouTube or Twitch's network would give us access to high performance and minimal latency solutions, that would be feasible to prototype with. However, with such a solution we would have limited control over the streaming platform.
+The other option would be to make use of existing streaming platforms like YouTube or Twitch.tv. Using YouTube or Twitch.tv's network would give us access to high performance and low latency solutions, that would be feasible to prototype with. However, with such a solution we would have limited control over the streaming platform.
 
 
     % * Description
@@ -139,7 +139,7 @@ A third option would be to make use of existing streaming platforms like YouTube
         
 \subsubsection{Final Choice of Solution}
 \label{par:stream_dist_final}
-In the end we went with the solution of using Twitch and YouTube as our streaming platforms. The rationale was that we did not have the time nor resources to make our own streaming platform, and we were naively unaware of the underlying technologies and middleware that could be used to create a personal platform quicker. In retrospect we should obviously have done a more thorough search and used existing middleware, rather than YouTube and Twitch. For one, such a solution would not lead us to violating terms of service\cite[5.1 G]{youtube_guidelines}, which we were made aware of late in the project. Additionally, using existing middleware would allow us more control. 
+In the end we went with the solution of using Twitch.tv and YouTube as our streaming platforms. The rationale was that we did not have the time nor resources to make our own streaming platform, and we were naively unaware of the underlying technologies and middleware that could be used to create a personal platform quicker. In retrospect we should obviously have done a more thorough search and used existing middleware, rather than YouTube and Twitch.tv. For one, such a solution would not lead us to violating terms of service\cite[5.1 G]{youtube_guidelines}\cite[9 viii]{ twitch_guidelines}, which we were made aware of late in the project. Additionally, using existing middleware would allow us more control. 
 
     % * Our final choice here ultimately ended up being using Twitch and Youtube as our streaming platforms. The rationale behind the choice is
     %     * we simply did not have the time and resources available to make our own streaming platform
@@ -169,17 +169,17 @@ In the end we went with the solution of using Twitch and YouTube as our streamin
 
 
 \subsection{Client} % Unity Overlay HTML 5, Moving to pure javascript, Remember: glorious html overlay hack
-The client component is responsible for playing the livestream video, while also listening for mouse clicks, which are sent back to the host.
-Due to the requirement\reqref{req:no_client_software} of not installing any software on the client, our options for creating the client application was quite limited. 
+The client component is responsible for playing the livestream video, while also listening for user interactions, which are sent back to the host.
+Due to Requirement~\ref{req:no_client_software} that relates to not installing any software on the client, our options for creating the client application was quite limited. 
 To comply with the requirement we choose to create a web application, however, we identified some alternatives as to how we could best achieve the desired functionality.
 
 \subsubsection{Pure Javascript Client}
-An obvious solution for the client application is to create it in plain javascript. Javascript would allow us to play videos with embedded links, and register mouse input from the user. Creating the client in pure javascript would ensure cross platform compatibility in a lightweight manner. However, there are some disadvantages to this approach. Photon supplied javascript support, however, cross-platform communication with Unity applications does not come right out of the box\cite{photon_javascript}, and their documentation on the javascript API leaves a lot to be desired. Additionally, neither of us are particularly well versed in javascript, which would decrease our prototyping productivity. 
+An obvious solution for the client application was to create it in plain Javascript. Javascript would allow us to play videos with embedded links, and register input from the user. Creating the client in pure Javascript would ensure cross platform compatibility in a lightweight manner. However, there are some disadvantages to this approach. Photon supplies Javascript support, however, cross-platform communication with Unity applications does not come right out of the box\cite{photon_javascript}, and their documentation on the Javascript API leaves a lot to be desired. Additionally, neither of us are particularly well versed in Javascript, which would decrease our prototyping productivity. 
 
 \subsubsection{Unity WebGL}
-Unity has support for creating HTML5 applications using WebGL\cite{unity_webgl}, through the translation of C\# and UnityScript code to Javascript. Unity was quite desirable for us, it would allow us to not only have the same technology from host to client, reducing complexity, but also allow for fast prototyping as we were familiar with the technology. 
-However, Unity WebGL also brings some challenges. Unity WebGL support is lacking in several aspects, with builds that are prone to fail randomly, or take a long time. While WebGL on mobile and tablet devices are not directly supported by Unity, Unity Technologies state in their documentation that high-end devices might be able to run WebGL applications. Due to the low level of computation required by our client application, we think it would be possible to run it on a mobile or tablet device. However, how well the application runs on a mobile or tablet device is unknown. Additionally, Unity is a heavy solution for the problem we are trying to solve.
-Using Unity would handle the problem of registering input and communicating with the host. However, we would still need to display the video stream coming from the host. Several solutions was investigated to solve this problem.
+Unity has support for creating HTML5 applications using WebGL\cite{unity_webgl}, through the translation of Unity C\# code to Javascript. Unity was quite desirable for us, it would allow us to not only have the same technology from host to client, reducing complexity, but also allow for fast prototyping as we were familiar with the technology. 
+However, Unity WebGL also brings some challenges. Unity WebGL support is lacking in several aspects, with builds that are prone to fail randomly, or take a long time. While WebGL on mobile and tablet devices are not directly supported by Unity, Unity Technologies state in their documentation that high-end devices might be able to run WebGL applications\cite{unity_webl_browser_support}. Due to the low level of computation required by our client application, we think it would be possible to run it on a mobile or tablet device. However, how well the application runs on a mobile or tablet device is unknown. Additionally, Unity is a heavy solution for the problem we are trying to solve.
+Using Unity would handle the problem of registering input and communicating with the host. Finally, we would still need to display the video stream coming from the host. Several solutions were investigated to solve this problem.
 
 \paragraph{Video Player Component}
 Unity's video player component allows for playback of videos, by rendering the video onto the texture of a game object\cite{unity_video_player}. The video player component has support for streaming videos from an URL. However, this has to be the direct video URL, meaning that a regular YouTube URL would need to be decoded to get access to the actual video feed, before it could be supplied to the video player component. Additionally, it is uncertain if such a solution would go against YouTube's guidelines\cite[5.1 A]{youtube_guidelines}.
@@ -188,12 +188,11 @@ Unity's video player component allows for playback of videos, by rendering the v
 Several YouTube video player solutions exist within the Unity ecosystem. However, we were unable to find any free solutions that also guaranteed cross platform support. 
 
 \paragraph{In App Browser}
-Another alternative would be to create a browser within Unity\cite{unity_simple_browser}. Such a browser would easily integrate with whatever streaming platform that was chosen, however, it was only supported on windows, and would have been quite a heavy solution.
+Another alternative would be to create a browser within Unity\cite{unity_simple_browser}. Such a browser would easily integrate with whatever streaming platform that was chosen, however, it was only supported on Windows, and would have been quite a heavy solution.
 
 \paragraph{WebGL Overlay Over Iframe}
-\todo{Rephrase most of this!}
-A fourth solution is to make the WebGL application transparent and place it on top of a video player. Such a solution is possible as Unity supports interacting with browser scripting through javascript\cite{unity_webgl_javascript_interaction}, allowing us to modify the HTML document the WebGL application is deployed in. 
-This allows Unity to take care of the input handling, and communication with the host, while the video stream is handled by an iframe video player. A benefit of this approach is the loose coupling to the streaming service it creates, as it only requires an embeddable iframe link to where the video stream is.
+The fourth solution was to make the WebGL application transparent and place it on top of a video player. Such a solution is possible as Unity supports interacting with browser scripting through Javascript\cite{unity_webgl_javascript_interaction}, allowing us to modify the HTML document containing the WebGL application. 
+This allows Unity to take care of the input handling, and communication with the host, while the video stream is handled by an iframe video player. A benefit of this approach is the loose coupling to the streaming services, as only an embeddable iframe link to the video stream is required.
 
     
 % \paragraph{HTML5 Youtube Player With Unity WebGL Overlay}
@@ -213,5 +212,5 @@ This allows Unity to take care of the input handling, and communication with the
 
 \subsubsection{Final Choice of Solution}
 \label{par:client_final}
-In the end we selected the Unity WebGL overlay solution, even though using pure javascript technically is a better choice. Using the WebGL overlay allowed us to start prototyping, testing, and optimizing faster, which we considered more important at the time. After initial prototyping we started to create a pure javascript client version, however, we did not have the time to finish it. 
-As mentioned in Section \ref{par:stream_dist_final}, building functionality on top of existing services might go against terms of service, a benefit with our solution as that the client is not coupled to the streaming service, we only require an embeddable link, meaning that we shouldn't need to change any logic in the client application when changing streaming service.
+In the end we selected the Unity WebGL overlay solution, even though using pure Javascript technically was a better choice. Using the WebGL overlay allowed us to start prototyping, testing, and optimizing faster, which we considered more important at the time. After initial prototyping we started to create a pure Javascript client version, however, we did not have the time to finish it. 
+As mentioned in Section \ref{par:stream_dist_final}, building functionality on top of existing platforms might go against their terms of service. A benefit with our solution as that the client is not coupled to a streaming service, we only require an embeddable link, meaning that we should not need to change any logic in the client application when changing streaming service.
